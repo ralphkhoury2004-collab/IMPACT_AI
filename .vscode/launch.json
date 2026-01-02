@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AI: Make Synthetic Data",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/ai/make_synthetic.py",
+      "cwd": "${workspaceFolder}/ai",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "AI: Train Crash",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/ai/train_crash.py",
+      "cwd": "${workspaceFolder}/ai",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "AI: Predict Sample",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/ai/predict.py",
+      "args": ["data/events/event_0005"],
+      "cwd": "${workspaceFolder}/ai",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Backend: FastAPI",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--port", "8000"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}
