@@ -1,4 +1,10 @@
+
 {
-  "sampling_hz": 200,
-  "duration_s": 5
+  "event_id": "event_0001",
+  "device_id": "ANDROID_001",
+  "session_id": "SESSION_001",
+  "timestamp_utc": "2026-01-02T00:00:00Z",
+  "sampling_hz": 100,
+  "duration_s": 10,
+  "notes": "Phone-only test. OBD placeholder, GPS placeholder, video from phone."
 }

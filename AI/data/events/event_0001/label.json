@@ -1,4 +1,7 @@
+
 {
-  "crash": 0,
-  "severity": "none"
+  "crash": "unknown",
+  "severity": "unknown",
+  "case": "unknown",
+  "fault": "unknown"
 }
