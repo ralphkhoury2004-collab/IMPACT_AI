@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import os, uuid, shutil, zipfile, json
 from .ai_infer import predict_event
+from .config import EMERGENCY_NUMBERS
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ RESULTS_DIR = os.path.join(STORE_DIR, "results")
 os.makedirs(EVENTS_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
+
 def safe_extract_zip(zip_path: str, extract_to: str):
     with zipfile.ZipFile(zip_path, "r") as z:
         for member in z.infolist():
@@ -21,9 +23,11 @@ def safe_extract_zip(zip_path: str, extract_to: str):
                 raise HTTPException(status_code=400, detail="Unsafe zip content")
         z.extractall(extract_to)
 
+
 @app.get("/health")
 def health():
     return {"ok": True}
+
 
 @app.post("/upload_event")
 async def upload_event(file: UploadFile = File(...)):
@@ -43,12 +47,9 @@ async def upload_event(file: UploadFile = File(...)):
     os.makedirs(extracted_dir, exist_ok=True)
     safe_extract_zip(zip_path, extracted_dir)
 
-    # IMPORTANT: your zip should contain either imu.csv at root,
-    # or a single folder that contains imu.csv.
-    # We handle both cases:
+    # zip may contain imu.csv at root or inside a single folder
     event_dir = extracted_dir
     if not os.path.exists(os.path.join(event_dir, "imu.csv")):
-        # try single nested folder
         items = [os.path.join(extracted_dir, x) for x in os.listdir(extracted_dir)]
         folders = [x for x in items if os.path.isdir(x)]
         if len(folders) == 1 and os.path.exists(os.path.join(folders[0], "imu.csv")):
@@ -56,13 +57,30 @@ async def upload_event(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail="imu.csv not found inside zip")
 
+    # ---- AI inference ----
     result = predict_event(event_dir)
 
+    # ---- Add emergency fields (AFTER predict, BEFORE saving) ----
+    # Make sure ai_infer.py sets result["emergency_required"] for heavy crashes.
+    if result.get("emergency_required"):
+        msg = (
+            "IMPACT ALERT: Heavy crash detected.\n"
+            f"Claim ID: {claim_id}\n"
+            "Please check the driver immediately."
+        )
+        result["emergency_contacts"] = EMERGENCY_NUMBERS
+        result["emergency_message"] = msg
+    else:
+        result["emergency_contacts"] = []
+        result["emergency_message"] = ""
+
+    # ---- Save result ----
     result_path = os.path.join(RESULTS_DIR, f"{claim_id}.json")
     with open(result_path, "w") as f:
         json.dump(result, f, indent=2)
 
     return {"claim_id": claim_id, "result": result}
+
 
 @app.get("/claims")
 def list_claims():
@@ -72,6 +90,7 @@ def list_claims():
             ids.append(name.replace(".json", ""))
     ids.sort()
     return {"claims": ids}
+
 
 @app.get("/claims/{claim_id}")
 def get_claim(claim_id: str):

@@ -1,0 +1,10 @@
+{
+  "crash": 1,
+  "severity": "heavy",
+  "emergency_required": true,
+  "emergency_contacts": [
+    "+961XXXXXXXX",
+    "+961YYYYYYYY"
+  ],
+  "emergency_message": "IMPACT ALERT: Heavy crash detected.\nClaim ID: c23cb074-5c69-4830-9052-87843d0d2fb3\nPlease check the driver immediately."
+}

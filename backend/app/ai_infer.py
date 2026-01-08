@@ -114,5 +114,8 @@ def predict_event(event_dir: str) -> dict:
     if crash == 1:
         heavy = int(_sev_model.predict(_sev_features(df).reshape(1, -1))[0])
         result["severity"] = "heavy" if heavy else "light"
+        result["emergency_required"] = (result["severity"] == "heavy")
+    else:
+         result["emergency_required"] = False
 
     return result
